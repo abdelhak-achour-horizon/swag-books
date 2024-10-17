@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library API Client</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 600px;
+            margin: 50px auto;
+            background: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1, h2 {
+            text-align: center;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            box-sizing: border-box;
+        }
+
+        button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        #book-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        #book-list li {
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-bottom: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Library API Client</h1>
+
+        <!-- Form to Create a Book -->
+        <h2>Create a Book</h2>
+        <form id="create-form">
+            <label for="createBookID">Book ID</label>
+            <input type="text" id="createBookID" name="createBookID" required>
+
+            <label for="createBookTitle">Book Title</label>
+            <input type="text" id="createBookTitle" name="createBookTitle" required>
+
+            <label for="createBookAuthor">Book Author</label>
+            <input type="text" id="createBookAuthor" name="createBookAuthor" required>
+
+            <label for="createBookDescription">Book Description</label>
+            <textarea id="createBookDescription" name="createBookDescription"></textarea>
+
+            <button type="submit">Create Book</button>
+        </form>
+
+        <!-- Form to Update a Book -->
+        <h2>Update a Book</h2>
+        <form id="update-form">
+            <label for="updateBookID">Book ID</label>
+            <input type="text" id="updateBookID" name="updateBookID" required>
+
+            <label for="updateBookTitle">Book Title</label>
+            <input type="text" id="updateBookTitle" name="updateBookTitle" required>
+
+            <label for="updateBookAuthor">Book Author</label>
+            <input type="text" id="updateBookAuthor" name="updateBookAuthor" required>
+
+            <label for="updateBookDescription">Book Description</label>
+            <textarea id="updateBookDescription" name="updateBookDescription"></textarea>
+
+            <button type="submit">Update Book</button>
+        </form>
+
+        <!-- Form to Delete a Book -->
+        <h2>Delete a Book</h2>
+        <form id="delete-form">
+            <label for="deleteBookID">Book ID</label>
+            <input type="text" id="deleteBookID" name="deleteBookID" required>
+
+            <button type="submit">Delete Book</button>
+        </form>
+
+        <!-- Section to List All Books -->
+        <h2>All Books</h2>
+        <button id="listBooks">List Books</button>
+        <ul id="book-list"></ul>
+    </div>
+
+    <!-- JavaScript for Create Book -->
+    <script>
+        const apiBaseUrl = "http://localhost:8080/v1/book";
+
+        // Function to create a book
+        document.getElementById('create-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const bookID = document.getElementById('createBookID').value.trim();
+            const bookTitle = document.getElementById('createBookTitle').value.trim();
+            const bookAuthor = document.getElementById('createBookAuthor').value.trim();
+            const bookDescription = document.getElementById('createBookDescription').value.trim();
+
+            if (!bookID || !bookTitle || !bookAuthor) {
+                alert('Please fill in all required fields (Book ID, Title, Author).');
+                return;
+            }
+
+            const bookData = {
+                bookID: bookID,
+                bookTitle: bookTitle,
+                bookAuthor: bookAuthor,
+                bookDescription: bookDescription
+            };
+
+            fetch(apiBaseUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(bookData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(errData => {
+                        throw new Error(errData.message || 'Failed to create book.');
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                alert(data.message);
+                document.getElementById('create-form').reset();
+                listBooks(); // Refresh the book list
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert(`Error: ${error.message}`);
+            });
+        });
+    </script>
+
+    <!-- JavaScript for Update Book -->
+    <script>
+        // Function to update a book
+        document.getElementById('update-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const bookID = document.getElementById('updateBookID').value.trim();
+            const bookTitle = document.getElementById('updateBookTitle').value.trim();
+            const bookAuthor = document.getElementById('updateBookAuthor').value.trim();
+            const bookDescription = document.getElementById('updateBookDescription').value.trim();
+
+            if (!bookID || !bookTitle || !bookAuthor) {
+                alert('Please fill in all required fields (Book ID, Title, Author).');
+                return;
+            }
+
+            const bookData = {
+                bookTitle: bookTitle,
+                bookAuthor: bookAuthor,
+                bookDescription: bookDescription
+            };
+
+            fetch(`${apiBaseUrl}/${encodeURIComponent(bookID)}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(bookData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(errData => {
+                        throw new Error(errData.message || 'Failed to update book.');
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                alert(data.message);
+                document.getElementById('update-form').reset();
+                listBooks(); // Refresh the book list
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert(`Error: ${error.message}`);
+            });
+        });
+    </script>
+
+    <!-- JavaScript for Delete Book -->
+    <script>
+        // Function to delete a book
+        document.getElementById('delete-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const bookID = document.getElementById('deleteBookID').value.trim();
+
+            if (!bookID) {
+                alert('Please enter the Book ID to delete.');
+                return;
+            }
+
+            fetch(`${apiBaseUrl}/${encodeURIComponent(bookID)}`, {
+                method: 'DELETE'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(errData => {
+                        throw new Error(errData.message || 'Failed to delete book.');
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                alert(data.message);
+                document.getElementById('delete-form').reset();
+                listBooks(); // Refresh the book list
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert(`Error: ${error.message}`);
+            });
+        });
+    </script>
+
+    <!-- JavaScript for Listing Books -->
+    <script>
+        // Function to list all books
+        document.getElementById('listBooks').addEventListener('click', listBooks);
+
+        function listBooks() {
+            fetch(apiBaseUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch books.');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const bookList = document.getElementById('book-list');
+                    bookList.innerHTML = '';
+
+                    if (Array.isArray(data) && data.length > 0) {
+                        data.forEach(book => {
+                            const li = document.createElement('li');
+                            li.textContent = `${book.bookID}: ${book.bookTitle} by ${book.bookAuthor}`;
+                            bookList.appendChild(li);
+                        });
+                    } else {
+                        bookList.innerHTML = '<li>No books available.</li>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert(`Error: ${error.message}`);
+                });
+        }
+
+        // Automatically list books on page load
+        window.onload = listBooks;
+    </script>
+</body>
+</html>

@@ -1,0 +1,248 @@
+---
+swagger: "2.0"
+info:
+  version: "v0.0.1"
+  title: "Library API Spec"
+  description: "This is an API for a library project that will be used in our SLO course."
+schemes:
+  - "http"
+  - "https"
+consumes:
+  - "application/json"
+produces:
+  - "application/json"
+paths:
+  /v1/book:
+    post:
+      tags:
+        - "Book"
+      operationId: "CreateBook"
+      parameters:
+        - in: "body"
+          name: "book"
+          required: true
+          schema:
+            $ref: "#/definitions/CreateBookRequest"
+          x-exportParamName: "Book"
+      responses:
+        "200":
+          description: "A successful response and a book is created."
+          schema:
+            $ref: "#/definitions/CreateBookResponse"
+        "403":
+          description: "Another book with the same ID exists."
+          schema:
+            $ref: "#/definitions/CreateBookResponse"
+    get:
+      tags:
+        - "Book"
+      operationId: "ListBooks"
+      responses:
+        "200":
+          description: "A successful response and a list of books is returned."
+          schema:
+            $ref: "#/definitions/ListBooksResponse"
+  /v1/book/{bookID}:
+    get:
+      tags:
+        - "Book"
+      operationId: "GetBookById"
+      parameters:
+        - name: "bookID"
+          in: "path"
+          required: true
+          type: "string"
+          x-exportParamName: "bookID"
+      responses:
+        "200":
+          description: "A successful response with the book details."
+          schema:
+            $ref: "#/definitions/GetBookByIdResponse"
+        "404":
+          description: "Book not found."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    put:
+      tags:
+        - "Book"
+      operationId: "UpdateBook"
+      parameters:
+        - name: "bookID"
+          in: "path"
+          required: true
+          type: "string"
+          x-exportParamName: "bookID"
+        - in: "body"
+          name: "book"
+          required: true
+          schema:
+            $ref: "#/definitions/UpdateBookRequest"
+          x-exportParamName: "Book"
+      responses:
+        "200":
+          description: "Book updated successfully."
+          schema:
+            $ref: "#/definitions/UpdateBookResponse"
+        "404":
+          description: "Book not found."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    delete:
+      tags:
+        - "Book"
+      operationId: "DeleteBook"
+      parameters:
+        - name: "bookID"
+          in: "path"
+          required: true
+          type: "string"
+          x-exportParamName: "bookID"
+      responses:
+        "200":
+          description: "A successful response and the book is deleted."
+          schema:
+            $ref: "#/definitions/DeleteBookResponse"
+definitions:
+  CreateBookRequest:
+    type: "object"
+    required:
+      - bookID
+      - bookTitle
+      - bookAuthor
+    properties:
+      bookID:
+        type: "string"
+      bookDescription:
+        type: "string"
+      bookTitle:
+        type: "string"
+      bookAuthor:
+        type: "string"
+    example:
+      bookID: "12345"
+      bookTitle: "Effective Swagger"
+      bookAuthor: "Jane Doe"
+      bookDescription: "A comprehensive guide to Swagger."
+
+  CreateBookResponse:
+    type: "object"
+    properties:
+      status:
+        type: "string"
+      message:
+        type: "string"
+    required:
+      - status
+      - message
+    example:
+      status: "success"
+      message: "Book created successfully."
+
+  ListBooksResponse:
+    type: "array"
+    items:
+      $ref: '#/definitions/Book'
+
+  Book:
+    type: "object"
+    properties:
+      bookID:
+        type: "string"
+      bookDescription:
+        type: "string"
+      bookTitle:
+        type: "string"
+      bookAuthor:
+        type: "string"
+    required:
+      - bookID
+      - bookTitle
+      - bookAuthor
+    example:
+      bookID: "12345"
+      bookTitle: "Effective Swagger"
+      bookAuthor: "Jane Doe"
+      bookDescription: "A comprehensive guide to Swagger."
+
+  DeleteBookResponse:
+    type: "object"
+    properties:
+      status:
+        type: "string"
+      message:
+        type: "string"
+    required:
+      - status
+      - message
+    example:
+      status: "success"
+      message: "Book deleted successfully."
+
+  GetBookByIdResponse:
+    type: "object"
+    properties:
+      status:
+        type: "string"
+      message:
+        type: "string"
+      book:
+        $ref: "#/definitions/Book"
+    required:
+      - status
+      - message
+      - book
+    example:
+      status: "success"
+      message: "Book retrieved successfully."
+      book:
+        bookID: "12345"
+        bookTitle: "Effective Swagger"
+        bookAuthor: "Jane Doe"
+        bookDescription: "A comprehensive guide to Swagger."
+
+  UpdateBookRequest:
+    type: "object"
+    properties:
+      bookDescription:
+        type: "string"
+      bookTitle:
+        type: "string"
+      bookAuthor:
+        type: "string"
+    example:
+      bookTitle: "Advanced Swagger"
+      bookAuthor: "Jane Doe"
+      bookDescription: "An advanced guide to Swagger."
+
+  UpdateBookResponse:
+    type: "object"
+    properties:
+      status:
+        type: "string"
+      message:
+        type: "string"
+    required:
+      - status
+      - message
+    example:
+      status: "success"
+      message: "Book updated successfully."
+
+  ErrorResponse:
+    type: "object"
+    properties:
+      status:
+        type: "string"
+      message:
+        type: "string"
+    required:
+      - status
+      - message
+    example:
+      status: "error"
+      message: "Book not found."
+
+# Example Usage URLs
+# http://localhost:8080/v1/book
+# http://localhost:8080/v1/book/{bookID}
+# Supported Methods: GET, POST, PUT, DELETE, OPTIONS
